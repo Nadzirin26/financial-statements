@@ -138,3 +138,7 @@ input, select, textarea { max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+.storage-error { max-width: 680px; padding: 40px 20px; }
+.storage-error h1 { font-size: 25px; margin-bottom: 20px; }
+.storage-error p { margin-bottom: 18px; font-size: 14px; }
+.panel > .secondary { margin-top: 18px; margin-bottom: 12px; }
