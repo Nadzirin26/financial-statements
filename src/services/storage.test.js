@@ -102,3 +102,45 @@ test('konfigurasi Vercel mendeklarasikan hasil build Vite dan fallback React Rou
   assert.equal(config.outputDirectory,'dist');
   assert.deepEqual(config.rewrites,[{source:'/(.*)',destination:'/index.html'}]);
 });
+
+test('akun testing dapat login sebagai user biasa dan menyimpan catatan terpisah',async()=>{
+  await initialize();
+  const testing=await login('testing','testing123');
+  assert.equal(testing.role,'user');
+  assert.equal(testing.id,'testing');
+  assert.equal('password' in testing,false);
+  putTransactions(testing.id,[row()],[]);
+  assert.deepEqual(getTransactions('user1'),[]);
+  assert.equal(getTransactions('testing')[0].description,row().description);
+});
+test('pembaruan browser lama menambahkan testing tanpa mengubah akun, sesi, atau data pribadi',async()=>{
+  await initialize();
+  await changePassword('admin','admin123','Pribadi123!');
+  await login('admin','Pribadi123!');
+  putTransactions('admin',[row()],[]);
+  const original=users().filter(x=>x.id!=='testing');
+  write('users',original);
+  localStorage.removeItem('catatan:v1:migration:testing-user-v1');
+  await Promise.all([initialize(),initialize()]);
+  assert.deepEqual(users().filter(x=>x.id!=='testing'),original);
+  assert.equal(users().filter(x=>x.id==='testing').length,1);
+  assert.equal(session().id,'admin');
+  assert.equal(getTransactions('admin').length,1);
+});
+test('testing yang dihapus oleh admin tidak dibuat ulang saat inisialisasi',async()=>{
+  await initialize();
+  deleteUser('testing');
+  await initialize();
+  await assert.rejects(login('testing','testing123'));
+});
+test('migrasi mempertahankan akun testing manual dan password testing yang sudah diganti',async()=>{
+  await initialize();
+  await changePassword('testing','testing123','TestingPribadi123!');
+  const original=users().find(x=>x.id==='testing');
+  write('users',users().map(x=>x.id==='testing'?{...x,id:'custom-testing'}:x));
+  localStorage.removeItem('catatan:v1:migration:testing-user-v1');
+  await initialize();
+  assert.equal(users().filter(x=>x.username==='testing').length,1);
+  assert.equal((await login('testing','TestingPribadi123!')).id,'custom-testing');
+  assert.equal(users().find(x=>x.id==='custom-testing').hash,original.hash);
+});

@@ -2,7 +2,22 @@ import {read,write,remove} from './storage.js';
 import {seedUsers} from '../data/seedUsers.js';
 export async function hash(password,salt){const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+password));return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');}
 export async function passwordRecord(password){const salt=crypto.randomUUID();return {salt,hash:await hash(password,salt)};}
-export async function initialize(){if(read('users',null)===null){const users=await Promise.all(seedUsers.map(async({password,...u})=>({...u,...await passwordRecord(password)})));if(read('users',null)===null)write('users',users);}}
+export async function initialize(){
+  if(read('users',null)===null){
+    const initial=await Promise.all(seedUsers.map(async({password,...u})=>({...u,...await passwordRecord(password)})));
+    if(read('users',null)===null)write('users',initial);
+  }
+  // Tambahkan akun baru sekali ke browser lama, tanpa mereset akun atau catatan.
+  // Penanda tetap ada jika admin menghapus akun testing secara sengaja.
+  const migration='migration:testing-user-v1';
+  if(!read(migration,false)){
+    const {password,...seed}=seedUsers.find(x=>x.id==='testing');
+    const record={...seed,...await passwordRecord(password)};
+    const current=users();
+    if(!current.some(x=>x.id===seed.id||x.username.toLowerCase()===seed.username))write('users',[...current,record]);
+    write(migration,true);
+  }
+}
 export const users=()=>read('users',[]);
 export async function login(username,password){const u=users().find(x=>x.username===username);if(!u||u.hash!==await hash(password,u.salt))throw Error('Username atau kata sandi salah.');write('session',{id:u.id});return u;}
 export const session=()=>users().find(x=>x.id===read('session',{})?.id)||null;

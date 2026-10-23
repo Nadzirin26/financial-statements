@@ -23,6 +23,7 @@ npm test
 |---|---|---|
 | Admin | admin | admin123 |
 | Pengguna contoh | user1 | user123 |
+| Testing untuk umum | testing | testing123 |
 
 Akun disiapkan saat aplikasi pertama dibuka. Tidak ada registrasi publik. Admin dapat membuat akun, mereset kata sandi, dan menghapus pengguna beserta datanya. Admin utama dipertahankan. Kata sandi tersimpan sebagai hash SHA-256 dengan salt acak melalui Web Crypto; kata sandi akun awal tercantum di kode seed untuk keperluan demo.
 
@@ -34,7 +35,7 @@ Akun disiapkan saat aplikasi pertama dibuka. Tidak ada registrasi publik. Admin 
 - Tabel rekap 12 bulan, total tahunan, grafik batang pemasukan/pengeluaran, donat kategori, dan garis tren. Tahun mengikuti data, termasuk tahun sebelumnya.
 - PDF per bulan dengan rincian pengeluaran, pilihan menyertakan pemasukan, subtotal pengeluaran harian, ringkasan bulanan, dan total per kategori. Periode tanpa transaksi yang sesuai tidak menghasilkan PDF kosong.
 - Backup JSON transaksi, kategori, dan anggaran; impor tervalidasi dan meminta konfirmasi sebelum mengganti data akun aktif. Akun dan kata sandi tidak dimasukkan ke backup.
-- Tombol **Isi Data Contoh** di dashboard user1 menambahkan transaksi pada bulan berjalan. Data contoh tidak otomatis dimasukkan.
+- Tombol **Isi Data Contoh** di dashboard user1 dan testing menambahkan transaksi pada bulan berjalan. Data contoh tidak otomatis dimasukkan.
 - Sidebar desktop, navigasi bawah untuk ponsel, serta notifikasi simpan/hapus. Sesi tetap aktif sampai keluar.
 
 ## Struktur
@@ -82,3 +83,11 @@ Validasi responsif dilakukan di browser pada lebar 320, 390, 768, 1024, dan 1366
 ## Pemeriksaan sebelum penggunaan
 
 `npm test` memverifikasi perhitungan, rincian pembelian setelah logout/login, pemisahan akun, kompatibilitas data lama, penolakan penimpaan dari tab lama, impor atomik saat kuota penuh, validasi backup, perlindungan data rusak, dan inisialisasi yang mempertahankan kata sandi pribadi. Jalankan `npm run build` untuk pemeriksaan produksi, lalu `npm run preview` untuk mencoba hasil build. Konfirmasi deployment Vercel yang sesungguhnya melalui URL produksi setelah Deploy selesai.
+
+## Akun testing untuk umum
+
+Bagikan username **testing** dan kata sandi **testing123** untuk mencoba aplikasi. Akun ini memiliki peran pengguna biasa dan tidak dapat membuka Kelola Akun. Tombol **Isi Data Contoh** tersedia di dashboard. Halaman login hanya menampilkan kredensial testing; kredensial admin/pengguna pribadi tidak ditampilkan di sana.
+
+Akun testing otomatis ditambahkan satu kali pada browser yang sudah memakai versi lama, tanpa mengubah akun, kata sandi pribadi, sesi, atau transaksi yang ada. Jika username testing sudah dibuat manual, akun tersebut dipertahankan. Jika admin menghapus akun testing setelah pembaruan ini, aplikasi tidak membuatnya ulang saat refresh.
+
+Karena tidak ada backend, orang yang memakai akun testing dari browser/perangkat berbeda memiliki data percobaan masing-masing. Ini bukan akun bersama dengan data yang tersinkron. Orang lain yang memakai browser/profil dan akun testing yang sama dapat membaca catatan testing di browser tersebut. Gunakan akun pribadi untuk data keuangan asli. Perubahan kata sandi dan akun admin juga berlaku lokal pada browser masing-masing; kode frontend bukan batas keamanan server.
